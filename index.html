@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAJESTIC INTERIOR</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f1f5f9;font-family:Arial,sans-serif}
+header{background:#17243a;padding:20px;text-align:center;border-bottom:2px solid #c49b52}
+header h2{margin:0;color:#e3bd75;letter-spacing:2px}
+header p{margin:7px 0 0;font-size:12px;color:#bac6d5}
+nav{display:flex;overflow:auto;background:#1d2a40}
+nav button{flex:1;min-width:100px;padding:13px 8px;border:0;background:none;color:white}
+nav button.active{background:#c49b52;color:#101827;font-weight:bold}
+main{padding:14px;max-width:900px;margin:auto}
+.panel{display:none}.panel.active{display:block}
+.card{background:#1b293e;border:1px solid #34445c;border-radius:12px;padding:14px;margin-bottom:14px}
+h3{color:#e3bd75;margin-top:0}
+input,select,textarea{width:100%;padding:11px;margin:5px 0 12px;border-radius:7px;border:1px solid #53647c;background:#101827;color:white}
+button.action{background:#c49b52;color:#111827;border:0;border-radius:7px;padding:11px 14px;font-weight:bold;margin:3px}
+button.secondary{background:#34445c;color:white}
+canvas{width:100%;height:400px;background:white;border-radius:8px;touch-action:none;display:block}
+.tools{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.tools button{flex:1;min-width:75px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px;border-bottom:1px solid #46546a;text-align:left}
+th{color:#e3bd75}
+.total{font-size:20px;color:#e3bd75;font-weight:bold}
+.small{font-size:12px;color:#b7c4d5}
+@media print{body{background:white;color:black}.no-print,nav{display:none!important}.panel{display:block!important}.card{background:white;color:black;border:1px solid #aaa}}
+</style>
+</head>
+<body>
+<header>
+<h2>MAJESTIC INTERIOR</h2>
+<p>DESIGN • SKETSA • RENCANA ANGGARAN BIAYA</p>
+</header>
+
+<nav class="no-print">
+<button class="active" onclick="tab('home',this)">Beranda</button>
+<button onclick="tab('gambar',this)">Sketsa</button>
+<button onclick="tab('rab',this)">RAB</button>
+<button onclick="tab('proyek',this)">Proyek</button>
+</nav>
+
+<main>
+<section id="home" class="panel active">
+<div class="card">
+<h3>Selamat Datang</h3>
+<p>Aplikasi desain dan perhitungan bahan furniture serta interior.</p>
+<label>Nama proyek</label>
+<input id="projectName" placeholder="Contoh: Kitchen Set Rumah Pak Andi">
+<label>Nama pelanggan</label>
+<input id="customer" placeholder="Nama pelanggan">
+<button class="action" onclick="save()">Simpan proyek</button>
+</div>
+<div class="card">
+<h3>Menu pekerjaan</h3>
+<p>• Lemari pakaian</p>
+<p>• Kitchen set</p>
+<p>• Kusen pintu dan jendela</p>
+<p>• Aluminium</p>
+<p>• ACP / Alcopan</p>
+<p>• Kaca</p>
+<p>• Furniture custom</p>
+</div>
+</section>
+
+<section id="gambar" class="panel">
+<div class="card">
+<h3>Area Gambar Sketsa</h3>
+<label>Nama gambar</label>
+<input id="drawingName" placeholder="Contoh: Tampak depan lemari">
+<div class="tools no-print">
+<button class="action" onclick="setTool('free')">Pensil bebas</button>
+<button class="action" onclick="setTool('line')">Garis</button>
+<button class="action" onclick="setTool('rect')">Kotak</button>
+<button class="action" onclick="setTool('erase')">Penghapus</button>
+<button class="action secondary" onclick="undo()">Undo</button>
+<button class="action secondary" onclick="clearCanvas()">Hapus semua</button>
+</div>
+<canvas id="drawing"></canvas>
+<p class="small">Gambar menggunakan jari. Pilih alat, lalu tarik pada area putih.</p>
+<label>Ukuran panjang (cm)</label>
+<input id="length" type="number" placeholder="Contoh: 200">
+<label>Ukuran lebar (cm)</label>
+<input id="width" type="number" placeholder="Contoh: 60">
+<label>Ukuran tinggi (cm)</label>
+<input id="height" type="number" placeholder="Contoh: 240">
+<button class="action" onclick="addMeasure()">Simpan ukuran</button>
+<div id="measureList"></div>
+<button class="action no-print" onclick="downloadDrawing()">Unduh gambar</button>
+</div>
+</section>
+
+<section id="rab" class="panel">
+<div class="card">
+<h3>Input Material dan Harga</h3>
+<label>Jenis pekerjaan</label>
+<select id="work">
+<option>Lemari</option>
+<option>Kitchen Set</option>
+<option>Kusen Pintu</option>
+<option>Jendela</option>
+<option>Aluminium</option>
+<option>ACP / Alcopan</option>
+<option>Kaca</option>
+<option>Lainnya</option>
+</select>
+<label>Nama bahan</label>
+<input id="material" placeholder="Contoh: Multiplek 18 mm">
+<label>Satuan</label>
+<select id="unit">
+<option>lembar</option><option>batang</option><option>meter</option>
+<option>m2</option><option>set</option><option>buah</option>
+<option>kg</option><option>liter</option><option>roll</option>
+</select>
+<label>Jumlah</label>
+<input id="qty" type="number" min="0" step="any" placeholder="Jumlah">
+<label>Harga satuan (Rp)</label>
+<input id="price" type="number" min="0" placeholder="Harga bahan">
+<button class="action" onclick="addMaterial()">Tambah ke RAB</button>
+</div>
+<div class="card">
+<h3>Daftar RAB</h3>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>Bahan</th><th>Jumlah</th><th>Harga</th><th>Total</th><th class="no-print">X</th></tr></thead>
+<tbody id="rabList"></tbody>
+</table>
+</div>
+<p>Total bahan:</p>
+<div class="total" id="grandTotal">Rp 0</div>
+<label>Biaya jasa pemasangan (Rp)</label>
+<input type="number" id="labor" value="0" oninput="calculate()">
+<label>Biaya tambahan (Rp)</label>
+<input type="number" id="extra" value="0" oninput="calculate()">
+<h3>Total keseluruhan</h3>
+<div class="total" id="finalTotal">Rp 0</div>
+<button class="action no-print" onclick="window.print()">Cetak RAB / PDF</button>
+<button class="action secondary no-print" onclick="exportCSV()">Unduh RAB CSV</button>
+</div>
+</section>
+
+<section id="proyek" class="panel">
+<div class="card">
+<h3>Penyimpanan Proyek</h3>
+<p class="small">Simpan data proyek ini di browser HP yang sedang digunakan.</p>
+<button class="action" onclick="save()">Simpan semua data</button>
+<button class="action secondary" onclick="load()">Muat data tersimpan</button>
+<button class="action secondary" onclick="window.print()">Cetak laporan</button>
+<p id="status" class="small"></p>
+</div>
+</section>
+</main>
+
+<script>
+let tool='free',items=[],measures=[],history=[];
+const canvas=document.getElementById('drawing');
+const ctx=canvas.getContext('2d');
+let drawing=false,start=null,last=null;
+
+function tab(id,btn){
+document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+btn.classList.add('active');
+if(id==='gambar') resizeCanvas();
+}
+function resizeCanvas(){
+let old=canvas.toDataURL();
+let w=canvas.clientWidth;
+canvas.width=w*devicePixelRatio;
+canvas.height=400*devicePixelRatio;
+ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#111';
+let img=new Image();
+img.onload=()=>ctx.drawImage(img,0,0,w,400);
+img.src=old;
+}
+window.addEventListener('resize',()=>{});
+function setTool(t){tool=t}
+function point(e){
+let r=canvas.getBoundingClientRect();
+return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+function snapshot(){history.push(canvas.toDataURL());if(history.length>15)history.shift()}
+canvas.addEventListener('pointerdown',e=>{
+e.preventDefault();canvas.setPointerCapture(e.pointerId);
+snapshot();drawing=true;start=point(e);last=start;
+if(tool==='free'||tool==='erase'){ctx.beginPath();ctx.moveTo(start.x,start.y)}
+});
+canvas.addEventListener('pointermove',e=>{
+if(!drawing)return;
+let p=point(e);
+if(tool==='free'||tool==='erase'){
+ctx.strokeStyle=tool==='erase'?'white':'#111';
+ctx.lineWidth=tool==='erase'?20:2;
+ctx.lineTo(p.x,p.y);ctx.stroke();
+last=p;
+}
+});
+canvas.addEventListener('pointerup',e=>{
+if(!drawing)return;
+let p=point(e);
+if(tool==='line'||tool==='rect'){
+ctx.strokeStyle='#111';ctx.lineWidth=2;
+ctx.beginPath();
+if(tool==='line'){ctx.moveTo(start.x,start.y);ctx.lineTo(p.x,p.y)}
+else ctx.rect(start.x,start.y,p.x-start.x,p.y-start.y);
+ctx.stroke();
+}
+drawing=false;
+});
+function undo(){
+let data=history.pop();if(!data)return;
+let img=new Image();img.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width/devicePixelRatio,canvas.height/devicePixelRatio)};img.src=data;
+}
+function clearCanvas(){if(confirm('Hapus semua gambar?')){snapshot();ctx.clearRect(0,0,canvas.width,canvas.height)}}
+function downloadDrawing(){
+let a=document.createElement('a');a.download='sketsa-majestic.png';a.href=canvas.toDataURL('image/png');a.click();
+}
+function addMeasure(){
+let l=+document.getElementById('length').value;
+let w=+document.getElementById('width').value;
+let h=+document.getElementById('height').value;
+if(!l&&!w&&!h)return alert('Masukkan ukuran terlebih dahulu');
+measures.push({l,w,h});
+document.getElementById('measureList').innerHTML=measures.map((m,i)=>
+`<p>Ukuran ${i+1}: P ${m.l||0} × L ${m.w||0} × T ${m.h||0} cm</p>`).join('');
+}
+function rupiah(n){return 'Rp '+Number(n||0).toLocaleString('id-ID')}
+function addMaterial(){
+let name=document.getElementById('material').value.trim();
+let qty=+document.getElementById('qty').value;
+let price=+document.getElementById('price').value;
+if(!name||qty<=0||price<0)return alert('Lengkapi nama bahan, jumlah, dan harga');
+items.push({work:document.getElementById('work').value,name,unit:document.getElementById('unit').value,qty,price});
+render();
+document.getElementById('material').value='';
+document.getElementById('qty').value='';
+document.getElementById('price').value='';
+}
+function removeItem(i){items.splice(i,1);render()}
+function render(){
+document.getElementById('rabList').innerHTML=items.map((x,i)=>
+`<tr><td>${x.name}<br><span class="small">${x.work} • ${x.unit}</span></td><td>${x.qty}</td><td>${rupiah(x.price)}</td><td>${rupiah(x.qty*x.price)}</td><td class="no-print"><button onclick="removeItem(${i})">X</button></td></tr>`).join('');
+calculate();
+}
+function calculate(){
+let sum=items.reduce((a,x)=>a+x.qty*x.price,0);
+let labor=+document.getElementById('labor').value||0;
+let extra=+document.getElementById('extra').value||0;
+document.getElementById('grandTotal').textContent=rupiah(sum);
+document.getElementById('finalTotal').textContent=rupiah(sum+labor+extra);
+}
+function save(){
+let data={projectName:document.getElementById('projectName').value,customer:document.getElementById('customer').value,items,measures,labor:document.getElementById('labor').value,extra:document.getElementById('extra').value,drawing:canvas.toDataURL()};
+localStorage.setItem('majesticInterior',JSON.stringify(data));
+document.getElementById('status').textContent='Data berhasil disimpan di browser HP.';
+alert('Proyek berhasil disimpan');
+}
+function load(){
+let d=JSON.parse(localStorage.getItem('majesticInterior')||'null');
+if(!d)return alert('Belum ada data tersimpan');
+document.getElementById('projectName').value=d.projectName||'';
+document.getElementById('customer').value=d.customer||'';
+items=d.items||[];measures=d.measures||[];
+document.getElementById('labor').value=d.labor||0;
+document.getElementById('extra').value=d.extra||0;
+render();
+document.getElementById('measureList').innerHTML=measures.map((m,i)=>`<p>Ukuran ${i+1}: P ${m.l||0} × L ${m.w||0} × T ${m.h||0} cm</p>`).join('');
+if(d.drawing){let img=new Image();img.onload=()=>ctx.drawImage(img,0,0,canvas.width/devicePixelRatio,canvas.height/devicePixelRatio);img.src=d.drawing}
+alert('Data proyek dimuat');
+}
+function exportCSV(){
+let rows=[['Pekerjaan','Nama bahan','Satuan','Jumlah','Harga satuan','Total']];
+items.forEach(x=>rows.push([x.work,x.name,x.unit,x.qty,x.price,x.qty*x.price]));
+let csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+let a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));
+a.download='RAB-MAJESTIC.csv';a.click();
+}
+resizeCanvas();
+</script>
+</body>
+</html>
